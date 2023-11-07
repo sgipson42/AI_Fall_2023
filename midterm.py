@@ -12,7 +12,7 @@ print(y.dtype)
 department = pd.get_dummies(df['department'], dtype=float)
 x1 = torch.tensor(department.values, dtype=torch.float32)
 print(x1.shape)
-print(x1.dtype)
+#print(x1.dtype)
 
 incentive = df['incentive'] / 100
 x2 = torch.tensor(incentive, dtype=torch.float32).unsqueeze(1)
