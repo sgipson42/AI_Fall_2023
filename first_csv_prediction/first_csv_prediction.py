@@ -1,57 +1,4 @@
-# python is slow
-# coding in python but its actually just a wrapper
-# there is other languages under this--for ML its C/C++ and nvidia (this is faster)
-
-# upload csv
-# on neural networks, you can add layers to be able to solve more complex problems (but won't necessarily predict any better)
-    #becuase if you add one neuron after another in a layer it basically reduces to a single weight and bias--not really helping
-        #this is in the linear case, but if you use the sigmoid function, it doesnt collapse into a single function like this
-        # so a nonlinear function is essential to make this capable of learning anything more complicated than a single simple line
-# more parameters to learn
-# hyperparameters are things that you have to decide--how many neurons, how many layers, the learning rate, etc
-# hyperparameter search: systematically trying things--using every combo of parameters
-    #Automated ML, wandb.org (tells you what hyperparameters to try next), etc are tools
 """
-import torch
-import math
-
-from sklearn import model_selection
-
-
-def line(x):  # will be a tensor (every element of x will get the math done on it, arrays dont work like that)
-    # return 10 * np.log(x+3) + 40
-    return 1.5 * x + 40
-
- x = torch.arange(1, 10, 0.1)
- making a tensor #arange function --array range prints 1-10
- 3rd value is how much to increase by
- an array, a list, a tensor
- tensor--can be arrays, vectors, scalar(a single number), can contain other tensors(2D, 3D, 4D+ array)
- tensors used in AI instead of arrays
-
- print(line(x))
- print(x)
- print(x.shape)  # number of elements
- x2 = torch.reshape(x, (10, 9))  # 10 tensors with 9 elements each
- print(line(x2))
- print(x2)
- print(x2.shape)  # torch size is [10, 9]
-
- import matplotlib.pyplot as plt
-
- plt.plot(x, line(x))
- plt.show()
-
- import pandas as pd
-
- df = pd.read_csv('/Users/skyler/Desktop/AI/male_heights.csv')
- print(df)
- print(df.columns)
- x = df['Age (in months)']
- y_true = df['50th Percentile Length (in centimeters)']
- print(x)
- print(y_true)
-
 def mae(y_true, y_pred):  # mean absolute error
     return (y_true - y_pred).abs().mean()
 """
@@ -76,7 +23,7 @@ import torch
 import torch.nn as nn
 from sklearn.model_selection import KFold
 
-df = pd.read_csv('/Users/skyler/Desktop/AI/male_heights.csv')
+df = pd.read_csv('male_heights.csv')
 x = df['Age (in months)']
 y_true = df['50th Percentile Length (in centimeters)']
 
@@ -150,6 +97,19 @@ print("Cross Validation Score: ", cross_val / 5)
 # optimizer = SGD(model, lr = 0.001 #should be very small) #lr is the learning rate--how big of a jump to make down
 # the gradient
 
+# python is slow
+# coding in python but its actually just a wrapper
+# there is other languages under this--for ML its C/C++ and nvidia (this is faster)
+
+# on neural networks, you can add layers to be able to solve more complex problems (but won't necessarily predict any better)
+    #becuase if you add one neuron after another in a layer it basically reduces to a single weight and bias--not really helping
+        #this is in the linear case, but if you use the sigmoid function, it doesnt collapse into a single function like this
+        # so a nonlinear function is essential to make this capable of learning anything more complicated than a single simple line
+# more parameters to learn
+# hyperparameters are things that you have to decide--how many neurons, how many layers, the learning rate, etc
+# hyperparameter search: systematically trying things--using every combo of parameters
+    #Automated ML, wandb.org (tells you what hyperparameters to try next), etc are tools
+
 
 """ FIRST RUN PRACTICE CROSS-VAL
 import pandas as pd
@@ -186,4 +146,48 @@ for test_set in range(5):
     print(int(mae(y_test, y_pred)))
 
 print("Average:",ave_pred/5)
+
+
+
+
+
+import torch
+import math
+
+from sklearn import model_selection
+
+
+def line(x):  # will be a tensor (every element of x will get the math done on it, arrays dont work like that)
+    # return 10 * np.log(x+3) + 40
+    return 1.5 * x + 40
+
+ x = torch.arange(1, 10, 0.1)
+ making a tensor #arange function --array range prints 1-10
+ 3rd value is how much to increase by
+ an array, a list, a tensor
+ tensor--can be arrays, vectors, scalar(a single number), can contain other tensors(2D, 3D, 4D+ array)
+ tensors used in AI instead of arrays
+
+ print(line(x))
+ print(x)
+ print(x.shape)  # number of elements
+ x2 = torch.reshape(x, (10, 9))  # 10 tensors with 9 elements each
+ print(line(x2))
+ print(x2)
+ print(x2.shape)  # torch size is [10, 9]
+
+ import matplotlib.pyplot as plt
+
+ plt.plot(x, line(x))
+ plt.show()
+
+ import pandas as pd
+
+ df = pd.read_csv('/Users/skyler/Desktop/AI/male_heights.csv')
+ print(df)
+ print(df.columns)
+ x = df['Age (in months)']
+ y_true = df['50th Percentile Length (in centimeters)']
+ print(x)
+ print(y_true)
 """

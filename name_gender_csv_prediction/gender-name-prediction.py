@@ -3,7 +3,8 @@ import torch
 from torch import nn
 from sklearn.model_selection import KFold
 
-df = pd.read_csv("/Users/skyler/AI_Fall_2023/male_female_names.csv")
+df = pd.read_csv("male_female_names.csv")
+
 # to predict
 gender = df['Gender']
 gender_onehot = pd.get_dummies(gender, dtype = float)
@@ -41,16 +42,6 @@ t = torch.tensor(rows)
 print(t)
 print(t.shape)
 
-
-
-
-
-"""
-names_onehot = pd.get_dummies(names, dtype = float)
-names_encoded = names_onehot.values
-print(names_encoded)
-x = torch.tensor(names_encoded, dtype = torch.float32)
-
 kf = KFold(n_splits=5, shuffle = True, random_state=42)
 
 for train_index, test_index in kf.split(x, y):
@@ -79,5 +70,3 @@ for train_index, test_index in kf.split(x, y):
         epoch_loss = loss(y_pred, y_test)
         #test_loss_list.append(epoch_loss.item())
         print("Loss:", epoch_loss)
-
-"""

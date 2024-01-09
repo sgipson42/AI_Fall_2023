@@ -2,10 +2,10 @@ import pandas as pd
 import torch
 import torch.nn as nn
 from sklearn.model_selection import KFold
+import numpy as np
 
-# upload csv and path
-# dimension error
-df = pd.read_csv('/Users/skyler/Desktop/garments_worker_productivity.csv')
+# set up input
+df = pd.read_csv('garments_worker_productivity.csv')
 y = df['actual_productivity']
 y = torch.tensor(y, dtype=torch.float32).unsqueeze(1)
 print(y.shape)
@@ -14,7 +14,7 @@ print(y.dtype)
 department = pd.get_dummies(df['department'], dtype=float)
 x1 = torch.tensor(department.values, dtype=torch.float32)
 print(x1.shape)
-print(x1.dtype)
+#print(x1.dtype)
 
 incentive = df['incentive'] / 100
 x2 = torch.tensor(incentive, dtype=torch.float32).unsqueeze(1)
@@ -44,13 +44,16 @@ def create_model(input_dim):
     model = nn.Sequential(
         nn.Linear(input_dim, 100),
         nn.ReLU(), # not adding parameters, no inputs when adding activation function between linear layers
-        nn.Linear(100, 1),
+        nn.Linear(100, 200),
+        nn.ReLU(),
+        nn.Linear(200,1)
     )
     model = model.to(torch.float32)
     return model
 
-"""
+""" FIRST METHOD: KFold splits
 # does it make sense to combine so many variables? are they comparable?
+fold_num = 1
 for train_index, test_index in kf.split(x, y):
     x_train, x_test = x[train_index], x[test_index]  # think about this
     print(x_train.dtype)
@@ -58,25 +61,28 @@ for train_index, test_index in kf.split(x, y):
 
     #model = nn.Linear(input_size, 1)  # first is # inputs, second is # outputs #print(model) print(list(model.parameters()))
     model = create_model(input_size)
-    loss = nn.MSELoss()  # print(loss)
-    optimizer = torch.optim.SGD(model.parameters(), lr=0.001)  # print(optimizer)
+    #loss = nn.MSELoss()  # print(loss)
+    #optimizer = torch.optim.SGD(model.parameters(), lr=0.001)  # print(optimizer)
+    loss = nn.L1Loss()  # print(loss) #MAE Loss
+    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)  # print(optimizer)
     train_loss_list = []
     test_loss_list = []
 
     loss_ave = 0
     train_loss_ave = 0
 
-    for epoch in range(1000):  # train the model
+    for epoch in range(100):  # train the model
         y_pred = model(x_train)
         epoch_loss = loss(y_pred, y_train)
         train_loss_list.append(epoch_loss.item())
-        train_loss_ave += epoch_loss  # contains 1000 summed values
-        train_loss_ave /= 1000  # divide by 1000 for average
+        train_loss_ave += epoch_loss  # contains 100 summed values
+        train_loss_ave /= 100  # divide by 100 for average
         optimizer.zero_grad()
         epoch_loss.backward()
         optimizer.step()
 
-        # after the update, test with the new slightly adjusted parameters to track progress
+        
+        after the update, test with the new slightly adjusted parameters to track progress
         y_pred = model(x_test)
         # print(y_pred)
         epoch_loss = loss(y_pred, y_test)
@@ -84,31 +90,69 @@ for train_index, test_index in kf.split(x, y):
         # print("Loss:", epoch_loss)
         loss_ave += epoch_loss # contains 1000 summed values
         loss_ave /= 1000 # divide by 1000 for average
+        print("Train Average Loss:", train_loss_ave)
+        print("Average Loss:", loss_ave)
+        cross_val += loss_ave # add average test loss for this fold
+        
 
-    print("Train Average Loss:", train_loss_ave)
-    print("Average Loss:", loss_ave)
-    cross_val += loss_ave # add average test loss for this fold
+        after the update, test with the new slightly adjusted parameters to track progress
+        y_pred = model(x_test)
+        print(y_pred)
+        epoch_loss = loss(y_pred, y_test)
+        test_loss_list.append(epoch_loss.item())
+        print("Loss:", epoch_loss)
+
+
     import matplotlib.pyplot as plt
-    plt.plot(train_loss_list,  label = 'Train Loss')
-    plt.plot(test_loss_list, label= 'Test Loss')
+    plt.plot(train_loss_list, label='Train Loss')
+    plt.plot(test_loss_list, label='Test Loss')
+    plt.title('Mean Absolute Error Losses')
     plt.legend()
+    plt.savefig(f"losses_lines_kfold_{fold_num}.png")
     plt.show()
-    # add in Adam instead of SGD
+
+    # make predictions
+    pred = model(x_test)  # multiply by whatever to get form you want
+    y_test = y_test  # multiply by whatever
+    print(pred.shape)
+    print(y_test.shape)
+
+    # plot predictions vs actual
+    plt.scatter(y_test.detach(), pred.detach())
+    plt.xlabel('Actual')
+    plt.ylabel('Predicted')
+    plt.title('Actual vs. Predicted Productivity Scores')
+    plt.savefig(f"actual_v_predicted_values_scatter_kfold_{fold_num}.png")
+    plt.show()
+
+    # plot predictions vs actual as line
+    plt.plot(y_test.detach(), label='Actual')
+    plt.plot(pred.detach(), label='Predicted')
+    plt.xlabel('Number of Values')
+    plt.ylabel('Productivity Score')
+    plt.legend()
+    plt.title('Actual vs. Predicted Productivity Scores')
+    plt.savefig(f"actual_v_predicted_values_lines_kfold_{fold_num}.png")
+    plt.show()
+
+    fold_num+=1
 
 print("Cross Validation Score: ", cross_val / 5)
 """
 
-# separate 80/20 train ans test
+# SECOND METHOD
+# separate 80/20 train and test
 from sklearn.model_selection import train_test_split
 
 x_train, x_test, y_train, y_test = train_test_split(x, y, test_size = 0.2, random_state=42)
 model = create_model(input_size)
-loss = nn.MSELoss()  # print(loss)
+# loss = nn.MSELoss()  # print(loss)
+loss = nn.L1Loss()  # print(loss) #MAE Loss
 optimizer = torch.optim.Adam(model.parameters(), lr=0.001)  # print(optimizer)
+
 # not stochastic gradient descent, and don't need as many epochs
 train_loss_list = []
 test_loss_list = []
-
 for epoch in range(100):  # train the model
     y_pred = model(x_train)
     epoch_loss = loss(y_pred, y_train)
@@ -127,7 +171,11 @@ for epoch in range(100):  # train the model
 import matplotlib.pyplot as plt
 plt.plot(train_loss_list,  label = 'Train Loss')
 plt.plot(test_loss_list, label= 'Test Loss')
+plt.title('Mean Absolute Error Losses per Epoch')
+plt.xlabel("Number of Epochs")
+plt.ylabel('Loss')
 plt.legend()
+plt.savefig("losses_lines_80-20_split.png")
 plt.show()
 
 # make predictions
@@ -135,17 +183,28 @@ pred = model(x_test) # multiply by whatever to get form you want
 y_test = y_test # multiply by whatever
 print(pred.shape)
 print(y_test.shape)
-
+print(y_test.detach().flatten().shape)
 # plot predictions vs actual
-plt.scatter(y_test.detach(), pred.detach())
+plt.scatter(y_test.detach().flatten(), pred.detach().flatten())
+# Fit the trend line
+z = np.polyfit(y_test.detach().flatten(), pred.detach().flatten(), 1)
+p = np.poly1d(z)
+plt.plot(y_test.detach().flatten(),p(y_test.detach().flatten()),"r--")
+
 plt.xlabel('Actual')
 plt.ylabel('Predicted')
+plt.title('Actual vs. Predicted Productivity Scores')
+plt.savefig('actual_v_predicted_values_scatter_80-20_split.png')
 plt.show()
 
 # plot predictions vs actual as line
 plt.plot(y_test.detach(), label = 'Actual')
 plt.plot(pred.detach(), label = 'Predicted')
+plt.xlabel('Number of Values')
+plt.ylabel('Productivity Score')
 plt.legend()
+plt.title('Actual vs. Predicted Productivity Scores')
+plt.savefig('actual_v_predicted_values_lines_80-20_split.png')
 plt.show()
 
 # show predictions vs actual as a dataframe

@@ -5,13 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="7836de01-ef53-4ffa-87ad-6155320f4248" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/cats-v-dogs-image-processing.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/first_csv_prediction.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/gender-name-prediction.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/videogame_sales_prediction.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/worker_productivity_prediction.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/first_csv_prediction/male_heights.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/videogame_sales_csv_prediction/video_games_sales.csv" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/worker_productivity_csv_prediction/garments_worker_productivity.csv" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/game_sales.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/cats-v-dogs-image-processing.py" beforeDir="false" afterPath="$PROJECT_DIR$/cats-v-dogs-image-processing.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/first_csv_prediction.py" beforeDir="false" afterPath="$PROJECT_DIR$/first_csv_prediction/first_csv_prediction.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/gender-name-prediction.py" beforeDir="false" afterPath="$PROJECT_DIR$/name_gender_csv_prediction/gender-name-prediction.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/male_female_names.csv" beforeDir="false" afterPath="$PROJECT_DIR$/name_gender_csv_prediction/male_female_names.csv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/midterm.py" beforeDir="false" afterPath="$PROJECT_DIR$/worker_productivity_csv_prediction/midterm.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/videogame_sales_prediction.py" beforeDir="false" afterPath="$PROJECT_DIR$/videogame_sales_csv_prediction/videogame_sales_prediction.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/worker_productivity_prediction.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -42,6 +46,14 @@
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;
   }
 }</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/name_gender_csv_prediction" />
+      <recent name="$PROJECT_DIR$/worker_productivity_csv_prediction" />
+      <recent name="$PROJECT_DIR$/videogame_sales_csv_prediction" />
+      <recent name="$PROJECT_DIR$/first_csv_prediction" />
+    </key>
+  </component>
   <component name="RunManager">
     <configuration name="main" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="AI_Fall_2023" />

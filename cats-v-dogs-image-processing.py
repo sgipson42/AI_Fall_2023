@@ -88,15 +88,11 @@ def main(): # what is this code actually predicting?
 
     for epoch in range(10):
         for batch in train_dataloader:
-            x, y = batch  # specific to image dataloader # what are x and y here?
+            x, y = batch  # specific to image dataloader
             # x = x.to("mps:0")
-            print('x')
-            print(x)
-            print('y')
-            print(y)
             # y = y.to("mps:0")
             y_hat = model(x)
-            print(y_hat) # tensor of 32*2--2 outputs per image, 32 images
+            # print(y_hat) # tensor of 32*2--2 outputs per image, 32 images
             loss = loss_fn(y_hat, y)
             optim.zero_grad()
             loss.backward()

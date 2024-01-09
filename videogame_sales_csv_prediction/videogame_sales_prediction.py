@@ -12,7 +12,7 @@ from sklearn.model_selection import KFold
 
 # upload csv
 # dimension error
-df = pd.read_csv("/Users/skyler/Desktop/AI_Fall_2023/video_games_sales.csv")
+df = pd.read_csv("video_games_sales.csv")
 # don't do anything to year of release? or divide by max?
 x = torch.tensor(df['Year_of_Release'], dtype=torch.float32).unsqueeze(1) # 2D tensor
 # print(x.shape)
@@ -89,16 +89,25 @@ df['padded_embeddings'] = df['Name'].apply(sentence_to_padded_embeddings)
 # dim2 = 300 # of tokens per
 # convert embeddings to tensor
 x_embeddings = torch.tensor(df['padded_embeddings'])
-print(df['padded_embeddings'].iloc[1])
-    #why are there 5 arrays in one entry? max_length of incoming sentence--is this good enough?
-    #each array is one token in the sentence
+# print(df['padded_embeddings'].iloc[1])
+# why are there 5 arrays in one entry? max_length of incoming sentence--is this good enough?
+# each array is one token in the sentence
 # check/manipulate tensor shapes for concatenation
-print(x_embeddings)
-print(x_embeddings.shape) # 3D tensor [16719, 5, 300]
+# print(x_embeddings)
+# print(x_embeddings.shape) # 3D tensor [16719, 5, 300]
 print(x)
 print(x.shape)
 x = x.unsqueeze(2) # add 3rd dimension to x
 print(x.shape) # 3D tensor [16719, 2332, 1]
+
+# dimension error occurs here
+"""
+torch.Size([16719, 2332])
+torch.Size([16719, 2332, 1])
+Traceback (most recent call last):
+  File "/Users/skyler/AI_Fall_2023/videogame_sales_csv_prediction/videogame_sales_prediction.py", line 103, in <module>
+    x = torch.cat((x, x_embeddings), dim=2) # sizes must match in every dimension except this one
+"""
 
 x = torch.cat((x, x_embeddings), dim=2) # sizes must match in every dimension except this one
 y = torch.tensor(df["NA_Sales"] / 100, dtype=torch.float32).unsqueeze(1)
@@ -116,12 +125,12 @@ for train_index, test_index in kf.split(x, y):
     model = nn.Linear(input_size,
                       1)  # first is # inputs, second is # outputs #print(model) print(list(model.parameters()))
     # loss = nn.MSELoss()  # print(loss)
-    loss = nn.MAELoss() #this isn't squared, more interpretable result
+    loss = nn.L1Loss() # this isn't squared, more interpretable result #MAE Loss
     optimizer = torch.optim.SGD(model.parameters(), lr=0.0001)  # print(optimizer)
 
     train_loss_list = []
     test_loss_list = []
-    for epoch in range(1000):  # train the model
+    for epoch in range(100):  # train the model
         y_pred = model(x_train)
         epoch_loss = loss(y_pred, y_train)
         train_loss_list.append(epoch_loss.item())
@@ -140,6 +149,7 @@ for train_index, test_index in kf.split(x, y):
     import matplotlib.pyplot as plt
     plt.plot(train_loss_list,  label = 'Train Loss')
     plt.plot(test_loss_list, label= 'Test Loss')
+    plt.title('Mean Absolute Error Losses')
     plt.legend()
     plt.show()
 
