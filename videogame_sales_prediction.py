@@ -1,6 +1,7 @@
 # currently getting nans as predictions-- find them or learning rate?
-# this is task specific architecture
-# fine-tuned models eliminate the need for task specfic architechture
+#3d/2d dimension issue
+# task specific architecture
+# fine-tuned models eliminate the need for task specific architechture
     # read paper llms are few shot learners
 import pandas as pd
 import numpy as np
@@ -9,43 +10,49 @@ import torch
 import torch.nn as nn
 from sklearn.model_selection import KFold
 
-df = pd.read_csv("/Users/skyler/Desktop/AI/video_games_sales.csv")
+# upload csv
+# dimension error
+df = pd.read_csv("/Users/skyler/Desktop/AI_Fall_2023/video_games_sales.csv")
 # don't do anything to year of release? or divide by max?
-x = torch.tensor(df['Year_of_Release'], dtype=torch.float32).unsqueeze(1)
-print(x.shape)
-print(x.dtype)
+x = torch.tensor(df['Year_of_Release'], dtype=torch.float32).unsqueeze(1) # 2D tensor
+# print(x.shape)
+# print(x.dtype)
 
+# one-hot encoding:
 # create inputs df of all one-word columns
 # do pd.dummies on the inputs df
-# convert values to tensor
+# convert values to singular tensor to be concatenated with the larger input tensor for the model
 single_words = df[['Genre', 'Platform', 'Rating', 'Publisher', 'Developer']]
 for column in single_words:
     one_hot_encoded = pd.get_dummies(single_words[column], dtype=float)
-    t = torch.tensor(one_hot_encoded.values, dtype=torch.float32)
-    print(t.shape)
-    print(t.dtype)
+    t = torch.tensor(one_hot_encoded.values, dtype=torch.float32) # 2D tensor
+    # print(t.shape)
+    # print(t.dtype)
     x = torch.cat((x, t), dim=1)
-    print(x.shape)
+    # print(x.shape)
 
 # create inputs df of all float value columns
+# convert all values to floats, account for missing data, normalize values,
+# adjust dimensions for concatenation
+# convert values to tensors, concat to input model tensor
 floats = df[['Critic_Score', 'User_Score', 'User_Count']]
 for column in floats:
     column = pd.to_numeric(floats[column], errors='coerce')  # for any values aren't floats (surprise strings)
     column = column.fillna(column.mean())  # fill missing values
     column = column / 100  # standardize in 0-1 scale
-    t = torch.tensor(column, dtype=torch.float32).unsqueeze(1)
-    print(t.shape)
-    print(t.dtype)
+    t = torch.tensor(column, dtype=torch.float32).unsqueeze(1) # 2D tensor
+    # print(t.shape)
+    # print(t.dtype)
     x = torch.cat((x, t), dim=1)
-    print('float_x')
-    print(x.shape)
+    # print('float_x')
+    # print(x.shape)
 
+# Word embeddings for columns with multiple words per row
 # Load pre-trained Word2Vec model using gensim
 # Make sure to download the pre-trained model first
 model_path = '/Users/skyler/Downloads/GoogleNews-vectors-negative300.bin'
 # Load the model
 word_vectors = KeyedVectors.load_word2vec_format(model_path, binary=True)
-
 
 def sentence_to_padded_embeddings(sentence, max_length=5):
     tokens = sentence.split()  # convert column to its tokens
@@ -54,8 +61,9 @@ def sentence_to_padded_embeddings(sentence, max_length=5):
     # Convert tokens to embeddings
     for token in tokens:
         if token in word_vectors:
-            embeddings.append(word_vectors[token])
             # add the embedded version of the token to the list
+            embeddings.append(word_vectors[token])
+            print(word_vectors[token])
         else:
             embeddings.append(np.zeros((300,)))  # if word not in vocab
             # what is the 300 for?
@@ -76,13 +84,23 @@ def sentence_to_padded_embeddings(sentence, max_length=5):
 
 df['Name'] = df['Name'].astype(str)
 df['padded_embeddings'] = df['Name'].apply(sentence_to_padded_embeddings)
+# method is called on every row in the column, so dim0 of tensor is length of df
+# dim1= 5 max sentence length (one embedding per word, each embedding has 300 tokens -- if no 5 words, just all zeroes
+# dim2 = 300 # of tokens per
+# convert embeddings to tensor
 x_embeddings = torch.tensor(df['padded_embeddings'])
+print(df['padded_embeddings'].iloc[1])
+    #why are there 5 arrays in one entry? max_length of incoming sentence--is this good enough?
+    #each array is one token in the sentence
+# check/manipulate tensor shapes for concatenation
 print(x_embeddings)
-print(x_embeddings.shape)
-x = x.unsqueeze(2)
+print(x_embeddings.shape) # 3D tensor [16719, 5, 300]
+print(x)
 print(x.shape)
+x = x.unsqueeze(2) # add 3rd dimension to x
+print(x.shape) # 3D tensor [16719, 2332, 1]
 
-x = torch.cat((x, x_embeddings), dim=0)
+x = torch.cat((x, x_embeddings), dim=2) # sizes must match in every dimension except this one
 y = torch.tensor(df["NA_Sales"] / 100, dtype=torch.float32).unsqueeze(1)
 
 kf = KFold(n_splits=5, random_state=None)
